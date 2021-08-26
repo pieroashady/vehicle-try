@@ -1,29 +1,11 @@
-import express, { Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import { validateRequest } from "../middlewares/validate-request";
-import { User } from "../models/user";
-import Rules from "../validation/rules";
+import express from 'express';
+import { UserController } from '../controllers/user-controller';
+import { validateRequest } from '../middlewares/validate-request';
+import AuthRules from '../validation/auth-rules';
 
 const router = express.Router();
 
-router.post(
-  "/signup",
-  validateRequest(Rules.auth),
-  async (req: Request, res: Response) => {
-    const { name, password, is_admin } = req.body;
-
-    const userCreated = await User.create({
-      name,
-      password,
-      is_admin,
-    });
-
-    return res.status(201).json({
-      error: false,
-      data: userCreated,
-      message: "Successfully registered",
-    });
-  }
-);
+router.post('/signup', validateRequest(AuthRules.signUp), UserController.signUp);
+router.post('/signin', validateRequest(AuthRules.signIn), UserController.signIn);
 
 export { router as UserAuthRouter };

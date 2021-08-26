@@ -1,6 +1,6 @@
-import { Model, Optional, DataTypes, Association } from "sequelize";
-import { db } from ".";
-import Password from "../utils/password";
+import { Association, Model, DataTypes, Optional } from 'sequelize';
+import { db } from '.';
+import Password from '../utils/password';
 
 export interface UserAttributes {
   id: number;
@@ -12,17 +12,9 @@ export interface UserAttributes {
   deleted_at?: Date | null;
 }
 
-export interface LoginAttributes {
-  name: string;
-  password: string;
-}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 
-interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
-
-export class User
-  extends Model<UserAttributes, UserCreationAttributes>
-  implements UserAttributes
-{
+export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: number;
   public name!: string;
   public password!: string;
@@ -30,10 +22,6 @@ export class User
   created_at?: Date;
   updated_at?: Date;
   deleted_at?: Date | null;
-
-  public static associations: {
-    projects: Association<User>;
-  };
 }
 
 User.init(
@@ -54,18 +42,10 @@ User.init(
     },
   },
   {
-    tableName: "users",
+    tableName: 'users',
     sequelize: db.sequelize,
     underscored: true,
     paranoid: true,
-    defaultScope: {
-      attributes: {
-        exclude: ["password"],
-      },
-    },
-    scopes: {
-      withPassword: {},
-    },
   }
 );
 
@@ -81,11 +61,11 @@ async function setUserPassword(instance: User) {
 
   const hashed = await Password.hash(password);
 
-  instance.setDataValue("password", hashed);
+  instance.setDataValue('password', hashed);
 }
 
-User.addHook("beforeCreate", setUserPassword);
-User.addHook("beforeUpdate", setUserPassword);
+User.addHook('beforeCreate', setUserPassword);
+User.addHook('beforeUpdate', setUserPassword);
 
 // User.hasMany(models.Session, { foreignKey: "UserId" });
 // User.belongsTo(models.Role);
